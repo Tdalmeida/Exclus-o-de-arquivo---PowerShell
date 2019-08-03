@@ -1,0 +1,38 @@
+$path_file = 'C:\Windows\Temp\Nova pasta\'
+$file = 'arquivo1.txt'
+
+function Verifica{
+    #$verifica_dir = (Get-ChildItem -LiteralPath $path_file -ErrorAction SilentlyContinue) -is [System.IO.DirectoryInfo] 
+    $verifica_file = Test-Path -Path $path_file -Filter $file 
+    $verifica_dir = Get-ChildItem -LiteralPath $path_file -Filter $file | Where-Object {$_.Mode.Contains('a')} -ErrorAction SilentlyContinue
+    #$verifica_file = test-path -path $path_file -filter $file
+    $compares_file = $path_file | %{$_.split('\')[-1]}
+    $path_comp = $path_file +'\'+$file
+
+    if(($path_comp.Contains('*')) -or (!$verifica_dir)){
+        Write-Output "Arquivo não encontrado ou contém *"
+    }
+    elseif($verifica_dir){
+         if((!$compares_file) -or ($compares_file -notmatch $file)){
+            Get-ChildItem -LiteralPath $path_file -Filter $file | Where-Object{$_.Mode.Contains('a')} | Remove-Item
+            Write-Output "Arquivo Removido"
+         }
+         else{
+            $split_path = split-path $path_comp
+            Get-ChildItem -LiteralPath $split_path | Where-Object {$_.Mode.Contains('a')} | Remove-Item
+            Write-Output "Arquivo Removido"
+         }
+
+    }
+    else{
+        Write-Output "Caminho inválido"
+    }
+    
+}
+
+    Try{
+        verifica
+    }
+    catch{
+        Write-Output "Falha na automação"
+    }
